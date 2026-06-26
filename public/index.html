@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>เกมแข่งรถคณิตศาสตร์</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+        }
+        .screen {
+            display: none !important;
+        }
+        .screen.active {
+            display: block !important;
+        }
+        .car-btn.selected {
+            background: rgba(102, 126, 234, 0.5);
+            border-color: #667eea;
+            transform: scale(1.15);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen text-white">
+
+    <!-- หน้ารายชื่อห้อง -->
+    <div id="room-list-screen" class="screen active min-h-screen flex flex-col items-center justify-center p-4">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                🏎️ เกมแข่งรถคณิตศาสตร์
+            </h1>
+            <p class="text-gray-300 text-lg">ตอบโจทย์คณิตศาสตร์ แข่งรถไปให้ไกลที่สุด!</p>
+        </div>
+        
+        <div class="w-full max-w-2xl mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl">
+            <h2 class="text-2xl font-bold mb-4 text-center">🏠 ห้องที่มีอยู่</h2>
+            <div id="rooms-container" class="space-y-3 mb-6"></div>
+            <button id="show-create-room-btn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-whitefont-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+                + สร้างห้องใหม่
+            </button>
+        </div>
+    </div>
+
+    <!-- หน้าสร้างห้อง -->
+    <div id="create-room-screen" class="screen min-h-screen flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-md mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl">
+            <h2 class="text-3xl font-bold mb-6 text-center">🏗️ สร้างห้องใหม่</h2>
+            
+            <div class="space-y-4 mb-6">
+                <input type="text" id="roomName" placeholder="ชื่อห้อง..." maxlength="20" class="w-full bg-white/20 border-2 border-white/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-all">
+                <input type="text" id="hostName" placeholder="ชื่อของคุณ..." maxlength="10" class="w-full bg-white/20 border-2 border-white/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-all">
+            </div>
+            
+            <p class="text-center mb-3 font-semibold">เลือกรถ:</p>
+            <div id="car-list-create" class="flex flex-wrap justify-center gap-3 mb-6">
+                <span class="car-btn selected text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🏎️')">🏎️</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚗')">🚗</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚙')">🚙</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚕')">🚕</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚌')">🚌</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚓')">🚓</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚑')">🚑</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚒')">🚒</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚐')">🚐</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🛻')">🛻</span>
+            </div>
+            
+            <div class="flex gap-3">
+                <button id="create-room-btn" onclick="createRoom()" class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+                    สร้างห้อง
+                </button>
+                <button onclick="showRoomList()" class="flex-1 bg-gray-600 hover:bg-gray-700 font-bold py-3 px-6 rounded-xl transition-all">
+                    กลับ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าเข้าห้อง -->
+    <div id="join-room-screen" class="screen min-h-screen flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-md mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl">
+            <h2 class="text-3xl font-bold mb-6 text-center">🚪 เข้าร่วมห้อง</h2>
+            
+            <div class="space-y-4 mb-6">
+                <input type="text" id="joinName" placeholder="ชื่อของคุณ..." maxlength="10" class="w-full bg-white/20 border-2 border-white/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-all">
+            </div>
+            
+            <p class="text-center mb-3 font-semibold">เลือกรถ:</p>
+            <div id="car-list-join" class="flex flex-wrap justify-center gap-3 mb-6">
+                <span class="car-btn selected text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🏎️')">🏎️</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚗')">🚗</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚙')">🚙</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚕')">🚕</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚌')">🚌</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚓')">🚓</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚑')">🚑</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚒')">🚒</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🚐')">🚐</span>
+                <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🛻')">🛻</span>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="joinRoom()" class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+                    เข้าห้อง
+                </button>
+                <button onclick="showRoomList()" class="flex-1 bg-gray-600 hover:bg-gray-700 font-bold py-3 px-6 rounded-xl transition-all">
+                    กลับ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้า Lobby -->
+    <div id="lobby-screen" class="screen min-h-screen flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-md mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl">
+            <h2 class="text-3xl font-bold mb-2 text-center">🏁 Lobby - รอผู้เล่น</h2>
+            <h3 id="lobby-room-name" class="text-xl text-purple-300 text-center mb-6"></h3>
+            
+            <div class="mb-6">
+                <h4 class="text-lg font-semibold mb-3">ผู้เล่นในห้อง:</h4>
+                <div id="lobby-players" class="space-y-2"></div>
+            </div>
+            
+            <div class="flex gap-3">
+                <button id="start-game-btn" onclick="startGame()" class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+                    🚀 เริ่มเกม
+                </button>
+                <button onclick="leaveRoom()" class="flex-1 bg-red-600 hover:bg-red-700 font-bold py-3 px-6 rounded-xl transition-all">
+                    ออกจากห้อง
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าเกมแข่งรถ -->
+    <div id="game-screen" class="screen min-h-screen flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold mb-4 text-center">🏎️ แข่งรถคณิตศาสตร์</h2>
+            
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 shadow-2xl mb-4">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="text-lg">
+                        คะแนน: <span id="my-score" class="font-bold text-yellow-400">0</span>
+                    </div>
+                    <div id="waiting-message" class="text-purple-300 font-semibold hidden">
+                        ⏳ รอผู้เล่นคนอื่นตอบ...
+                    </div>
+                </div>
+                
+                <canvas id="race-canvas" class="w-full rounded-xl border-4 border-white/30" style="background: linear-gradient(to right, #2d5016 0%, #3d6b1e 100%);"></canvas>
+            </div>
+            
+            <div id="question-box" class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl mb-4">
+                <div id="answer-feedback" class="hidden mb-4 text-center text-2xl font-bold"></div>
+                <div class="question-text text-4xl md:text-5xl font-bold text-center mb-6" id="question-text"></div>
+                <div class="answer-grid grid grid-cols-2 gap-4" id="answer-grid"></div>
+            </div>
+            
+            <div id="winner-display" class="hidden"></div>
+            
+            <div id="countdown-display" class="hidden text-center">
+                <div class="text-8xl md:text-9xl font-bold text-yellow-400 animate-pulse" id="countdown-number"></div>
+            </div>
+            
+            <button onclick="leaveRoom()" class="w-full bg-red-600 hover:bg-red-700 font-bold py-3 px-6 rounded-xl transition-all">
+                ออกจากเกม
+            </button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io({
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionAttempts: 10,
+            reconnectionDelayMax: 5000
+        });
+        let myCar = '🏎️';
+        let myRoomId = null;
+        let isHost = false;
+        let currentQuestion = null;
+        let myPlayerId = null;
+
+        // Socket error handling
+        socket.on('connect_error', (error) => {
+            console.error('Socket connection error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'เชื่อมต่อไม่ได้',
+                text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#667eea'
+            });
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected to server with ID:', socket.id);
+            myPlayerId = socket.id;
+            
+            // ถ้ามี roomId แสดงว่าเคยอยู่ในห้อง ลอง reconnect
+            if (myRoomId) {
+                console.log('Attempting to reconnect to room:', myRoomId);
+                socket.emit('reconnectToRoom', { 
+                    roomId: myRoomId,
+                    playerName: localStorage.getItem('playerName'),
+                    car: myCar
+                });
+            }
+        });
+
+        // Add event listeners after DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const showCreateRoomBtn = document.getElementById('show-create-room-btn');
+            if (showCreateRoomBtn) {
+                showCreateRoomBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log('Button clicked via event listener');
+                    showCreateRoom();
+                });
+            } else {
+                console.error('show-create-room-btn not found');
+            }
+        });
+        
+        const canvas = document.getElementById('race-canvas');
+        const ctx = canvas.getContext('2d');
+        let players = {};
+
+        // ตั้งค่าขนาด canvas ตามหน้าจอ
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth - 32;
+            canvas.height = Math.min(400, window.innerHeight * 0.4);
+            if (Object.keys(players).length > 0) {
+                drawRace();
+            }
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // ฟังก์ชันแสดงหน้าจอ
+        function showScreen(screenId) {
+            console.log('showScreen called with:', screenId);
+            const targetScreen = document.getElementById(screenId);
+            console.log('Target screen element:', targetScreen);
+            
+            document.querySelectorAll('.screen').forEach(s => {
+                console.log('Removing active from:', s.id);
+                s.classList.remove('active');
+            });
+            
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+                console.log('Added active to:', screenId);
+            } else {
+                console.error('Screen not found:', screenId);
+            }
+            
+            if (screenId === 'game-screen') {
+                setTimeout(resizeCanvas, 100);
+            }
+        }
+
+        function showRoomList() {
+            showScreen('room-list-screen');
+        }
+
+        function showCreateRoom() {
+            console.log('showCreateRoom called');
+            showScreen('create-room-screen');
+        }
+
+        function showJoinRoom(roomId) {
+            myRoomId = roomId;
+            showScreen('join-room-screen');
+        }
+
+        // ฟังก์ชันเลือกรถ
+        function selectCar(element, car) {
+            myCar = car;
+            const container = element.parentElement;
+            container.querySelectorAll('.car-btn').forEach(btn => btn.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        // สร้างห้อง
+        function createRoom() {
+            console.log('createRoom function called');
+            
+            const roomName = document.getElementById('roomName').value.trim();
+            const hostName = document.getElementById('hostName').value.trim();
+            
+            console.log('Attempting to create room:', { roomName, hostName, myCar });
+            console.log('Socket connected:', socket.connected);
+            
+            if (!roomName || !hostName) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบ',
+                    text: 'กรุณาใส่ชื่อห้องและชื่อของคุณ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#667eea'
+                });
+                return;
+            }
+            
+            if (!socket.connected) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่ได้เชื่อมต่อ',
+                    text: 'ไม่ได้เชื่อมต่อกับเซิร์ฟเวอร์ กรุณารีเฟรชหน้า',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#667eea'
+                });
+                return;
+            }
+            
+            // บันทึกชื่อผู้เล่นไว้สำหรับ reconnect
+            localStorage.setItem('playerName', hostName);
+            
+            socket.emit('createRoom', { roomName, playerName: hostName, car: myCar });
+            console.log('Room creation event emitted');
+        }
+
+        // เข้าห้อง
+        function joinRoom() {
+            const joinName = document.getElementById('joinName').value.trim();
+            
+            if (!joinName) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบ',
+                    text: 'กรุณาใส่ชื่อของคุณ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#667eea'
+                });
+                return;
+            }
+            
+            // บันทึกชื่อผู้เล่นไว้สำหรับ reconnect
+            localStorage.setItem('playerName', joinName);
+            
+            socket.emit('joinRoom', { roomId: myRoomId, playerName: joinName, car: myCar });
+        }
+
+        // เริ่มเกม
+        function startGame() {
+            if (isHost) {
+                socket.emit('startGame', myRoomId);
+            }
+        }
+
+        // ออกจากห้อง
+        function leaveRoom() {
+            socket.emit('leaveRoom');
+            myRoomId = null;
+            isHost = false;
+            showRoomList();
+        }
+
+        // กลับไป Lobby
+        function returnToLobby() {
+            socket.emit('resetRoom', myRoomId);
+        }
+
+        // ตอบคำถาม
+        function submitAnswer(answer) {
+            socket.emit('submitAnswer', { answer });
+            document.getElementById('answer-grid').innerHTML = '';
+            document.getElementById('waiting-message').classList.remove('hidden');
+        }
+
+        // Socket events
+        socket.on('roomList', (rooms) => {
+            const container = document.getElementById('rooms-container');
+            container.innerHTML = '';
+            
+            const roomIds = Object.keys(rooms);
+            if (roomIds.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-400">ยังไม่มีห้อง</p>';
+                return;
+            }
+            
+            roomIds.forEach(roomId => {
+                const room = rooms[roomId];
+                const playerCount = Object.keys(room.players).length;
+                const div = document.createElement('div');
+                div.className = 'bg-white/10 rounded-xl p-4 flex justify-between items-center';
+                div.innerHTML = `
+                    <div>
+                        <strong class="text-lg">${room.name}</strong><br>
+                        <small class="text-gray-400">ผู้เล่น: ${playerCount} คน</small>
+                    </div>
+                    <button onclick="showJoinRoom('${roomId}')" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 font-bold py-2 px-4 rounded-lg transition-all">
+                        เข้าร่วม
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        });
+
+        socket.on('roomCreated', (roomId) => {
+            myRoomId = roomId;
+            isHost = true;
+            showScreen('lobby-screen');
+        });
+
+        socket.on('joinedRoom', (roomId) => {
+            myRoomId = roomId;
+            isHost = false;
+            showScreen('lobby-screen');
+        });
+
+        socket.on('joinError', (message) => {
+            Swal.fire({
+                icon: 'error',
+                title: 'เข้าห้องไม่ได้',
+                text: message,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#667eea'
+            }).then(() => {
+                showRoomList();
+            });
+        });
+
+        socket.on('updateLobby', (lobbyPlayers) => {
+            players = lobbyPlayers;
+            const container = document.getElementById('lobby-players');
+            container.innerHTML = '';
+            
+            Object.values(lobbyPlayers).forEach(player => {
+                const div = document.createElement('div');
+                div.className = 'bg-white/10 rounded-lg p-3 flex items-center gap-3';
+                div.innerHTML = `<span class="text-3xl">${player.car}</span> <span class="font-semibold">${player.name}</span>`;
+                container.appendChild(div);
+            });
+            
+            // แสดง/ซ่อนปุ่มเริ่มเกม
+            document.getElementById('start-game-btn').style.display = isHost ? 'block' : 'none';
+        });
+
+        socket.on('gameStarted', () => {
+            showScreen('game-screen');
+            document.getElementById('question-box').classList.add('hidden');
+            document.getElementById('winner-display').classList.add('hidden');
+            document.getElementById('waiting-message').classList.add('hidden');
+            document.getElementById('countdown-display').classList.remove('hidden');
+            drawRace();
+        });
+
+        socket.on('countdown', (number) => {
+            document.getElementById('countdown-number').textContent = number;
+            if (number === 0) {
+                document.getElementById('countdown-display').classList.add('hidden');
+                document.getElementById('question-box').classList.remove('hidden');
+            }
+        });
+
+        socket.on('newQuestion', (question) => {
+            currentQuestion = question;
+            document.getElementById('question-text').textContent = question.question;
+            document.getElementById('waiting-message').classList.add('hidden');
+            document.getElementById('answer-feedback').classList.add('hidden');
+            
+            const answerGrid = document.getElementById('answer-grid');
+            answerGrid.innerHTML = '';
+            
+            question.answers.forEach(answer => {
+                const btn = document.createElement('button');
+                btn.className = 'bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white font-bold text-2xl py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg';
+                btn.textContent = answer;
+                btn.onclick = () => submitAnswer(answer);
+                answerGrid.appendChild(btn);
+            });
+            
+            document.getElementById('question-box').classList.remove('hidden');
+        });
+
+        socket.on('answerSubmitted', (data) => {
+            const feedback = document.getElementById('answer-feedback');
+            feedback.classList.remove('hidden');
+            feedback.textContent = data.isCorrect ? '✅ ตอบถูก!' : '❌ ตอบผิด!';
+            feedback.className = data.isCorrect ? 'mb-4 text-center text-2xl font-bold text-green-400' : 'mb-4 text-center text-2xl font-bold text-red-400';
+        });
+
+        socket.on('updateRace', (racePlayers) => {
+            players = racePlayers;
+            
+            // อัปเดตคะแนนตัวเอง
+            const myPlayer = Object.values(racePlayers).find(p => p.car === myCar);
+            if (myPlayer) {
+                document.getElementById('my-score').textContent = myPlayer.score;
+            }
+            
+            drawRace();
+        });
+
+        socket.on('gameFinished', (data) => {
+            document.getElementById('question-box').classList.add('hidden');
+            document.getElementById('waiting-message').classList.add('hidden');
+            const winnerDisplay = document.getElementById('winner-display');
+            winnerDisplay.classList.remove('hidden');
+            
+            // สร้างตารางลำดับ
+            let rankingsHTML = '<div class="space-y-3 mt-6">';
+            data.rankings.forEach((player, index) => {
+                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                const isWinner = player.name === data.winner.name;
+                rankingsHTML += `
+                    <div class="flex items-center justify-between bg-white/10 rounded-xl p-4 ${isWinner ? 'border-2 border-yellow-400' : ''}">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">${medal}</span>
+                            <span class="text-3xl">${player.car}</span>
+                            <span class="font-semibold text-lg">${player.name}</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-yellow-400 font-bold">${player.score} คะแนน</div>
+                            <div class="text-sm text-gray-400">${player.position.toFixed(1)}%</div>
+                        </div>
+                    </div>
+                `;
+            });
+            rankingsHTML += '</div>';
+            
+            winnerDisplay.innerHTML = `
+                <div class="bg-gradient-to-r from-yellow-500 to-orange-600 rounded-2xl p-8 text-center shadow-2xl mb-6">
+                    <div class="text-4xl md:text-6xl font-bold mb-4">🏆 ${data.winner.name} ชนะ! 🏆</div>
+                    <div class="text-xl">คะแนน: ${data.winner.score}</div>
+                </div>
+                ${rankingsHTML}
+                <button onclick="returnToLobby()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+                    🏁 กลับไป Lobby
+                </button>
+            `;
+        });
+
+        socket.on('reconnectSuccess', (data) => {
+            console.log('Reconnected to room successfully:', data);
+            myRoomId = data.roomId;
+            isHost = data.isHost;
+            players = data.players;
+            
+            if (data.status === 'playing') {
+                showScreen('game-screen');
+                document.getElementById('question-box').classList.remove('hidden');
+                document.getElementById('winner-display').classList.add('hidden');
+                document.getElementById('waiting-message').classList.add('hidden');
+                drawRace();
+                
+                if (data.currentQuestion) {
+                    document.getElementById('question-text').textContent = data.currentQuestion.question;
+                    const answerGrid = document.getElementById('answer-grid');
+                    answerGrid.innerHTML = '';
+                    data.currentQuestion.answers.forEach(answer => {
+                        const btn = document.createElement('button');
+                        btn.className = 'bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white font-bold text-2xl py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg';
+                        btn.textContent = answer;
+                        btn.onclick = () => submitAnswer(answer);
+                        answerGrid.appendChild(btn);
+                    });
+                }
+            } else {
+                showScreen('lobby-screen');
+                const container = document.getElementById('lobby-players');
+                container.innerHTML = '';
+                Object.values(data.players).forEach(player => {
+                    const div = document.createElement('div');
+                    div.className = 'bg-white/10 rounded-lg p-3 flex items-center gap-3';
+                    div.innerHTML = `<span class="text-3xl">${player.car}</span> <span class="font-semibold">${player.name}</span>`;
+                    container.appendChild(div);
+                });
+                document.getElementById('start-game-btn').style.display = isHost ? 'block' : 'none';
+            }
+        });
+
+        socket.on('reconnectFailed', (message) => {
+            console.log('Reconnection failed:', message);
+            Swal.fire({
+                icon: 'error',
+                title: 'เชื่อมต่อใหม่ไม่สำเร็จ',
+                text: message,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#667eea'
+            }).then(() => {
+                myRoomId = null;
+                isHost = false;
+                showScreen('room-list-screen');
+            });
+        });
+
+        socket.on('roomReset', () => {
+            showScreen('lobby-screen');
+            document.getElementById('winner-display').classList.add('hidden');
+            document.getElementById('countdown-display').classList.add('hidden');
+            document.getElementById('question-box').classList.add('hidden');
+        });
+
+        // วาดสนามแข่ง
+        function drawRace() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // วาดถนน
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // วาดเส้นประ
+            ctx.strokeStyle = '#fff';
+            ctx.setLineDash([20, 20]);
+            ctx.lineWidth = 2;
+            
+            const playerList = Object.values(players);
+            const laneHeight = canvas.height / (playerList.length + 1);
+            
+            playerList.forEach((player, index) => {
+                const y = (index + 1) * laneHeight;
+                
+                // เส้นแบ่งเลน
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+                
+                // ตำแหน่งรถ
+                const x = (player.position / 100) * (canvas.width - 60) + 30;
+                
+                // วาดรถ
+                ctx.font = '40px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(player.car, x, y);
+                
+                // วาดชื่อ
+                ctx.font = '14px Sarabun';
+                ctx.fillStyle = '#FFD700';
+                ctx.fillText(player.name, x, y + 30);
+                
+                // วาดเส้นชัย
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(canvas.width - 10, 0, 10, canvas.height);
+            });
+            
+            ctx.setLineDash([]);
+        }
+    </script>
+</body>
+</html>
