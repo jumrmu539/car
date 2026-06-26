@@ -339,91 +339,106 @@
 
     <!-- หน้า Lobby -->
     <div id="lobby-screen" class="screen min-h-screen flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-md mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border-2 border-yellow-500/50 shadow-2xl game-card">
-            <h2 class="text-3xl font-bold mb-2 text-center text-yellow-400">🏁 Lobby - รอผู้เล่น</h2>
-            <h3 id="lobby-room-name" class="text-xl text-purple-300 text-center mb-6"></h3>
-            
-            <!-- Room Settings (Host only) -->
-            <div id="room-settings" class="mb-6 hidden">
-                <h4 class="text-lg font-semibold mb-3">⚙️ ตั้งค่าห้อง:</h4>
-                <div class="space-y-3">
-                    <div>
-                        <label class="block mb-1 text-sm">โหมดเจ้าของ:</label>
-                        <select id="lobby-hostMode" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
-                            <option value="player">🏎️ ผู้แข่งขัน</option>
-                            <option value="monitor">👁️ ผู้ดูแล (Monitor)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block mb-1 text-sm">การดำเนินการ:</label>
-                        <select id="lobby-operation" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
-                            <option value="add">➕ บวก</option>
-                            <option value="subtract">➖ ลบ</option>
-                            <option value="multiply">✖️ คูณ</option>
-                            <option value="divide">➗ หาร</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block mb-1 text-sm">จำนวนเลขหลัก:</label>
-                        <select id="lobby-digitMode" onchange="toggleLobbyMixedDigits()" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
-                            <option value="1">1 หลัก</option>
-                            <option value="2">2 หลัก</option>
-                            <option value="3">3 หลัก</option>
-                            <option value="mixed">🔀 ผสม</option>
-                        </select>
-                    </div>
-                    <div id="lobby-mixedDigitsOptions" class="hidden">
-                        <div class="flex gap-2">
-                            <div class="flex-1">
-                                <label class="block mb-1 text-sm">ชุดที่ 1:</label>
-                                <select id="lobby-mixedDigit1" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
-                                    <option value="1">1 หลัก</option>
-                                    <option value="2">2 หลัก</option>
-                                    <option value="3">3 หลัก</option>
-                                </select>
-                            </div>
-                            <div class="flex-1">
-                                <label class="block mb-1 text-sm">ชุดที่ 2:</label>
-                                <select id="lobby-mixedDigit2" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
-                                    <option value="1">1 หลัก</option>
-                                    <option value="2">2 หลัก</option>
-                                    <option value="3">3 หลัก</option>
-                                </select>
+        <div class="w-full max-w-6xl mx-auto flex gap-4">
+            <!-- Left Column: Lobby Info -->
+            <div class="flex-1 bg-white/10 backdrop-blur-lg rounded-2xl p-6 border-2 border-yellow-500/50 shadow-2xl game-card">
+                <h2 class="text-3xl font-bold mb-2 text-center text-yellow-400">🏁 Lobby - รอผู้เล่น</h2>
+                <h3 id="lobby-room-name" class="text-xl text-purple-300 text-center mb-6"></h3>
+                
+                <!-- Room Settings (Host only) -->
+                <div id="room-settings" class="mb-6 hidden">
+                    <h4 class="text-lg font-semibold mb-3">⚙️ ตั้งค่าห้อง:</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block mb-1 text-sm">โหมดเจ้าของ:</label>
+                            <select id="lobby-hostMode" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
+                                <option value="player">🏎️ ผู้แข่งขัน</option>
+                                <option value="monitor">👁️ ผู้ดูแล (Monitor)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-sm">การดำเนินการ:</label>
+                            <select id="lobby-operation" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
+                                <option value="add">➕ บวก</option>
+                                <option value="subtract">➖ ลบ</option>
+                                <option value="multiply">✖️ คูณ</option>
+                                <option value="divide">➗ หาร</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-sm">จำนวนเลขหลัก:</label>
+                            <select id="lobby-digitMode" onchange="toggleLobbyMixedDigits()" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
+                                <option value="1">1 หลัก</option>
+                                <option value="2">2 หลัก</option>
+                                <option value="3">3 หลัก</option>
+                                <option value="mixed">🔀 ผสม</option>
+                            </select>
+                        </div>
+                        <div id="lobby-mixedDigitsOptions" class="hidden">
+                            <div class="flex gap-2">
+                                <div class="flex-1">
+                                    <label class="block mb-1 text-sm">ชุดที่ 1:</label>
+                                    <select id="lobby-mixedDigit1" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
+                                        <option value="1">1 หลัก</option>
+                                        <option value="2">2 หลัก</option>
+                                        <option value="3">3 หลัก</option>
+                                    </select>
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block mb-1 text-sm">ชุดที่ 2:</label>
+                                    <select id="lobby-mixedDigit2" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
+                                        <option value="1">1 หลัก</option>
+                                        <option value="2">2 หลัก</option>
+                                        <option value="3">3 หลัก</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
+                        <div>
+                            <label class="block mb-1 text-sm">ระดับความยาก:</label>
+                            <select id="lobby-difficulty" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
+                                <option value="easy">😊 ง่าย</option>
+                                <option value="medium">🤔 ปานกลาง (มีตัวหลอก)</option>
+                                <option value="hard">😈 ยาก (ตัวหลอกทุกข้อ)</option>
+                            </select>
+                        </div>
+                        <button onclick="updateRoomSettings()" class="w-full game-btn bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-all transform hover:scale-105">
+                            💾 บันทึกการตั้งค่า
+                        </button>
                     </div>
-                    <div>
-                        <label class="block mb-1 text-sm">ระดับความยาก:</label>
-                        <select id="lobby-difficulty" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
-                            <option value="easy">😊 ง่าย</option>
-                            <option value="medium">🤔 ปานกลาง (มีตัวหลอก)</option>
-                            <option value="hard">😈 ยาก (ตัวหลอกทุกข้อ)</option>
-                        </select>
-                    </div>
-                    <button onclick="updateRoomSettings()" class="w-full game-btn bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-all transform hover:scale-105">
-                        💾 บันทึกการตั้งค่า
+                </div>
+                
+                <!-- Room Settings Display (Non-host) -->
+                <div id="room-settings-display" class="mb-6 hidden">
+                    <h4 class="text-lg font-semibold mb-3">⚙️ ตั้งค่าห้อง:</h4>
+                    <div id="settings-info" class="bg-white/5 rounded-lg p-3 text-sm space-y-1"></div>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold mb-3">ผู้เล่นในห้อง:</h4>
+                    <div id="lobby-players" class="space-y-2"></div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button id="start-game-btn" onclick="startGame()" class="flex-1 game-btn bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg pulse">
+                        🚀 เริ่มเกม
+                    </button>
+                    <button onclick="leaveRoom()" class="flex-1 game-btn bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105">
+                        ออกจากห้อง
                     </button>
                 </div>
             </div>
             
-            <!-- Room Settings Display (Non-host) -->
-            <div id="room-settings-display" class="mb-6 hidden">
-                <h4 class="text-lg font-semibold mb-3">⚙️ ตั้งค่าห้อง:</h4>
-                <div id="settings-info" class="bg-white/5 rounded-lg p-3 text-sm space-y-1"></div>
-            </div>
-            
-            <div class="mb-6">
-                <h4 class="text-lg font-semibold mb-3">ผู้เล่นในห้อง:</h4>
-                <div id="lobby-players" class="space-y-2"></div>
-            </div>
-            
-            <div class="flex gap-3">
-                <button id="start-game-btn" onclick="startGame()" class="flex-1 game-btn bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg pulse">
-                    🚀 เริ่มเกม
-                </button>
-                <button onclick="leaveRoom()" class="flex-1 game-btn bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105">
-                    ออกจากห้อง
-                </button>
+            <!-- Right Column: Chat -->
+            <div class="w-96 bg-white/10 backdrop-blur-lg rounded-2xl p-6 border-2 border-blue-500/50 shadow-2xl game-card flex flex-col">
+                <h4 class="text-lg font-semibold mb-3 text-blue-400">💬 แชท:</h4>
+                <div id="chat-messages" class="bg-white/5 rounded-lg p-3 flex-1 overflow-y-auto mb-3 space-y-2 text-sm min-h-64"></div>
+                <div class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="พิมพ์ข้อความ..." maxlength="100" class="flex-1 bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                    <button onclick="sendChatMessage()" class="game-btn bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-all">
+                        ส่ง
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -843,6 +858,40 @@
             `;
         }
 
+        // Chat Functions
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (message && myRoomId) {
+                socket.emit('chatMessage', {
+                    roomId: myRoomId,
+                    message: message
+                });
+                input.value = '';
+            }
+        }
+
+        function addChatMessage(data) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'break-words';
+            
+            const isMe = data.playerId === myPlayerId;
+            const alignClass = isMe ? 'text-right' : 'text-left';
+            const bgClass = isMe ? 'bg-blue-500/30' : 'bg-white/10';
+            
+            messageDiv.innerHTML = `
+                <div class="${alignClass}">
+                    <span class="font-semibold ${isMe ? 'text-blue-300' : 'text-green-300'}">${data.playerName}:</span>
+                    <span class="${bgClass} px-2 py-1 rounded inline-block">${data.message}</span>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
         // ตอบคำถาม
         function submitAnswer(answer) {
             socket.emit('submitAnswer', { answer });
@@ -1192,6 +1241,20 @@
                 displayDiv.classList.remove('hidden');
             }
         }
+
+        // Chat socket event
+        socket.on('chatMessage', (data) => {
+            addChatMessage(data);
+        });
+
+        // Chat history event
+        socket.on('chatHistory', (history) => {
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = '';
+            history.forEach(msg => {
+                addChatMessage(msg);
+            });
+        });
 
         // วาดสนามแข่ง
         function drawRace() {

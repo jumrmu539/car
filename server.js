@@ -230,7 +230,9 @@ io.on('connection', (socket) => {
             digitMode: data.digitMode || '2',
             digit1: data.digit1 || '2',
             digit2: data.digit2 || '2',
-            difficulty: data.difficulty || 'easy'
+            difficulty: data.difficulty || 'easy',
+            // Chat history
+            chatHistory: []
         };
         
         // ถ้าเป็น monitor mode ไม่เพิ่ม host เป็น player
@@ -287,6 +289,9 @@ io.on('connection', (socket) => {
                 digit2: rooms[roomId].digit2,
                 difficulty: rooms[roomId].difficulty
             });
+            
+            // ส่งประวัติแชทให้ผู้เล่นที่เข้าร่วม
+            socket.emit('chatHistory', rooms[roomId].chatHistory);
             
             // ส่ง roomList โดยทำความสะอาดข้อมูล
             const roomListForClient = {};
@@ -473,6 +478,35 @@ io.on('connection', (socket) => {
             });
             
             console.log(`Room settings updated for room ${roomId}`);
+        }
+    });
+
+    // แชทในห้อง
+    socket.on('chatMessage', (data) => {
+        const { roomId, message } = data;
+        
+        if (rooms[roomId] && players[socket.id]) {
+            const player = players[socket.id];
+            
+            // เก็บข้อความในประวัติ (สูงสุด 50 ข้อความ)
+            const chatMessage = {
+                playerId: socket.id,
+                playerName: player.name,
+                message: message,
+                timestamp: Date.now()
+            };
+            
+            rooms[roomId].chatHistory.push(chatMessage);
+            
+            // จำกัดประวัติไม่เกิน 50 ข้อความ
+            if (rooms[roomId].chatHistory.length > 50) {
+                rooms[roomId].chatHistory.shift();
+            }
+            
+            // ส่งข้อความให้ทุกคนในห้อง
+            io.to(roomId).emit('chatMessage', chatMessage);
+            
+            console.log(`Chat message from ${player.name} in room ${roomId}: ${message}`);
         }
     });
 
