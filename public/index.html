@@ -6,16 +6,180 @@
     <title>เกมแข่งรถคณิตศาสตร์</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             font-family: 'Sarabun', sans-serif;
+            background-image: url('bg1.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+        
+        #game-screen {
+            background-image: url('bg2.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
         }
         .screen {
             display: none !important;
         }
         .screen.active {
             display: block !important;
+        }
+        
+        /* Custom Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 3px solid #e94560;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(233, 69, 96, 0.5);
+            animation: slideIn 0.3s ease;
+        }
+        
+        .modal-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: bounce 1s infinite;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(233, 69, 96, 0.8);
+        }
+        
+        .modal-message {
+            color: #ccc;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        
+        .modal-btn-primary {
+            background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
+            color: white;
+            box-shadow: 0 0 15px rgba(233, 69, 96, 0.5);
+        }
+        
+        .modal-btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(233, 69, 96, 0.8);
+        }
+        
+        .modal-btn-secondary {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: white;
+            border: 2px solid #e94560;
+        }
+        
+        .modal-btn-secondary:hover {
+            background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%);
+            transform: scale(1.05);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* Game-like button effects */
+        .game-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .game-btn:hover::before {
+            left: 100%;
+        }
+        
+        /* Card hover effects */
+        .game-card {
+            transition: all 0.3s ease;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
+        }
+        
+        /* Pulse animation for important elements */
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(233, 69, 96, 0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
         }
         .car-btn.selected {
             background: rgba(102, 126, 234, 0.5);
@@ -24,21 +188,24 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen text-white">
+<body class="min-h-screen text-white">
+
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="modal-icon" class="modal-icon">🎮</div>
+            <h3 id="modal-title" class="modal-title">แจ้งเตือน</h3>
+            <p id="modal-message" class="modal-message">ข้อความ</p>
+            <div id="modal-buttons" class="modal-buttons"></div>
+        </div>
+    </div>
 
     <!-- หน้ารายชื่อห้อง -->
     <div id="room-list-screen" class="screen active min-h-screen flex flex-col items-center justify-center p-4">
-        <div class="text-center mb-8">
-            <h1 class="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                🏎️ เกมแข่งรถคณิตศาสตร์
-            </h1>
-            <p class="text-gray-300 text-lg">ตอบโจทย์คณิตศาสตร์ แข่งรถไปให้ไกลที่สุด!</p>
-        </div>
-        
-        <div class="w-full max-w-2xl mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl">
-            <h2 class="text-2xl font-bold mb-4 text-center">🏠 ห้องที่มีอยู่</h2>
+        <div class="w-full max-w-2xl mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border-2 border-pink-500/50 shadow-2xl game-card mt-32">
+            <h2 class="text-2xl font-bold mb-4 text-center text-pink-400">🏠 ห้องที่มีอยู่</h2>
             <div id="rooms-container" class="space-y-3 mb-6"></div>
-            <button id="show-create-room-btn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-whitefont-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+            <button id="show-create-room-btn" class="w-full game-btn bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg pulse">
                 + สร้างห้องใหม่
             </button>
         </div>
@@ -46,8 +213,8 @@
 
     <!-- หน้าสร้างห้อง -->
     <div id="create-room-screen" class="screen min-h-screen flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-md mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl">
-            <h2 class="text-3xl font-bold mb-6 text-center">🏗️ สร้างห้องใหม่</h2>
+        <div class="w-full max-w-2xl mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border-2 border-blue-500/50 shadow-2xl game-card">
+            <h2 class="text-3xl font-bold mb-6 text-center text-blue-400">🏗️ สร้างห้องใหม่</h2>
             
             <div class="space-y-4 mb-6">
                 <input type="text" id="roomName" placeholder="ชื่อห้อง..." maxlength="20" class="w-full bg-white/20 border-2 border-white/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-all">
@@ -68,11 +235,68 @@
                 <span class="car-btn text-4xl p-3 rounded-xl bg-white/10 border-2 border-transparent cursor-pointer transition-all hover:bg-white/20" onclick="selectCar(this, '🛻')">🛻</span>
             </div>
             
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block mb-2 font-semibold">โหมดเจ้าของห้อง:</label>
+                    <select id="hostMode" class="w-full bg-white/20 border-2 border-white/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-all">
+                        <option value="player">🏎️ ผู้แข่งขัน</option>
+                        <option value="monitor">👁️ ผู้ดูแล (Monitor)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block mb-2 font-semibold">การดำเนินการ:</label>
+                    <select id="operation" class="w-full bg-white/20 border-2 border-white/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-all">
+                        <option value="add">➕ การบวก</option>
+                        <option value="subtract">➖ การลบ</option>
+                        <option value="multiply">✖️ การคูณ</option>
+                        <option value="divide">➗ การหาร</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block mb-2 font-semibold">จำนวนเลขหลัก:</label>
+                <select id="digitMode" class="w-full bg-white/20 border-2 border-white/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-all" onchange="toggleMixedDigits()">
+                    <option value="1">1 หลัก</option>
+                    <option value="2" selected>2 หลัก</option>
+                    <option value="3">3 หลัก</option>
+                    <option value="mixed">ผสม</option>
+                </select>
+            </div>
+            
+            <div id="mixedDigitsOptions" class="hidden grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block mb-2 font-semibold">ตัวเลขชุดที่ 1:</label>
+                    <select id="mixedDigit1" class="w-full bg-white/20 border-2 border-white/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-all">
+                        <option value="1">1 หลัก</option>
+                        <option value="2">2 หลัก</option>
+                        <option value="3">3 หลัก</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block mb-2 font-semibold">ตัวเลขชุดที่ 2:</label>
+                    <select id="mixedDigit2" class="w-full bg-white/20 border-2 border-white/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-all">
+                        <option value="1">1 หลัก</option>
+                        <option value="2">2 หลัก</option>
+                        <option value="3">3 หลัก</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block mb-2 font-semibold">ระดับความยาก:</label>
+                <select id="difficulty" class="w-full bg-white/20 border-2 border-white/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-all">
+                    <option value="easy">😊 ง่าย</option>
+                    <option value="medium">🤔 ปานกลาง (มีตัวหลอก)</option>
+                    <option value="hard">😈 ยาก (ตัวหลอกทุกข้อ)</option>
+                </select>
+            </div>
+            
             <div class="flex gap-3">
-                <button id="create-room-btn" onclick="createRoom()" class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+                <button id="create-room-btn" onclick="createRoom()" class="flex-1 game-btn bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg pulse">
                     สร้างห้อง
                 </button>
-                <button onclick="showRoomList()" class="flex-1 bg-gray-600 hover:bg-gray-700 font-bold py-3 px-6 rounded-xl transition-all">
+                <button onclick="showRoomList()" class="flex-1 game-btn bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105">
                     กลับ
                 </button>
             </div>
@@ -81,8 +305,8 @@
 
     <!-- หน้าเข้าห้อง -->
     <div id="join-room-screen" class="screen min-h-screen flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-md mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl">
-            <h2 class="text-3xl font-bold mb-6 text-center">🚪 เข้าร่วมห้อง</h2>
+        <div class="w-full max-w-md mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border-2 border-green-500/50 shadow-2xl game-card">
+            <h2 class="text-3xl font-bold mb-6 text-center text-green-400">🚪 เข้าร่วมห้อง</h2>
             
             <div class="space-y-4 mb-6">
                 <input type="text" id="joinName" placeholder="ชื่อของคุณ..." maxlength="10" class="w-full bg-white/20 border-2 border-white/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-all">
@@ -103,10 +327,10 @@
             </div>
             
             <div class="flex gap-3">
-                <button onclick="joinRoom()" class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+                <button onclick="joinRoom()" class="flex-1 game-btn bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg pulse">
                     เข้าห้อง
                 </button>
-                <button onclick="showRoomList()" class="flex-1 bg-gray-600 hover:bg-gray-700 font-bold py-3 px-6 rounded-xl transition-all">
+                <button onclick="showRoomList()" class="flex-1 game-btn bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105">
                     กลับ
                 </button>
             </div>
@@ -115,9 +339,78 @@
 
     <!-- หน้า Lobby -->
     <div id="lobby-screen" class="screen min-h-screen flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-md mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl">
-            <h2 class="text-3xl font-bold mb-2 text-center">🏁 Lobby - รอผู้เล่น</h2>
+        <div class="w-full max-w-md mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border-2 border-yellow-500/50 shadow-2xl game-card">
+            <h2 class="text-3xl font-bold mb-2 text-center text-yellow-400">🏁 Lobby - รอผู้เล่น</h2>
             <h3 id="lobby-room-name" class="text-xl text-purple-300 text-center mb-6"></h3>
+            
+            <!-- Room Settings (Host only) -->
+            <div id="room-settings" class="mb-6 hidden">
+                <h4 class="text-lg font-semibold mb-3">⚙️ ตั้งค่าห้อง:</h4>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block mb-1 text-sm">โหมดเจ้าของ:</label>
+                        <select id="lobby-hostMode" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
+                            <option value="player">🏎️ ผู้แข่งขัน</option>
+                            <option value="monitor">👁️ ผู้ดูแล (Monitor)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-1 text-sm">การดำเนินการ:</label>
+                        <select id="lobby-operation" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
+                            <option value="add">➕ บวก</option>
+                            <option value="subtract">➖ ลบ</option>
+                            <option value="multiply">✖️ คูณ</option>
+                            <option value="divide">➗ หาร</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-1 text-sm">จำนวนเลขหลัก:</label>
+                        <select id="lobby-digitMode" onchange="toggleLobbyMixedDigits()" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
+                            <option value="1">1 หลัก</option>
+                            <option value="2">2 หลัก</option>
+                            <option value="3">3 หลัก</option>
+                            <option value="mixed">🔀 ผสม</option>
+                        </select>
+                    </div>
+                    <div id="lobby-mixedDigitsOptions" class="hidden">
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="block mb-1 text-sm">ชุดที่ 1:</label>
+                                <select id="lobby-mixedDigit1" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
+                                    <option value="1">1 หลัก</option>
+                                    <option value="2">2 หลัก</option>
+                                    <option value="3">3 หลัก</option>
+                                </select>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block mb-1 text-sm">ชุดที่ 2:</label>
+                                <select id="lobby-mixedDigit2" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
+                                    <option value="1">1 หลัก</option>
+                                    <option value="2">2 หลัก</option>
+                                    <option value="3">3 หลัก</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block mb-1 text-sm">ระดับความยาก:</label>
+                        <select id="lobby-difficulty" class="w-full bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500">
+                            <option value="easy">😊 ง่าย</option>
+                            <option value="medium">🤔 ปานกลาง (มีตัวหลอก)</option>
+                            <option value="hard">😈 ยาก (ตัวหลอกทุกข้อ)</option>
+                        </select>
+                    </div>
+                    <button onclick="updateRoomSettings()" class="w-full game-btn bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-all transform hover:scale-105">
+                        💾 บันทึกการตั้งค่า
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Room Settings Display (Non-host) -->
+            <div id="room-settings-display" class="mb-6 hidden">
+                <h4 class="text-lg font-semibold mb-3">⚙️ ตั้งค่าห้อง:</h4>
+                <div id="settings-info" class="bg-white/5 rounded-lg p-3 text-sm space-y-1"></div>
+            </div>
             
             <div class="mb-6">
                 <h4 class="text-lg font-semibold mb-3">ผู้เล่นในห้อง:</h4>
@@ -125,10 +418,10 @@
             </div>
             
             <div class="flex gap-3">
-                <button id="start-game-btn" onclick="startGame()" class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+                <button id="start-game-btn" onclick="startGame()" class="flex-1 game-btn bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg pulse">
                     🚀 เริ่มเกม
                 </button>
-                <button onclick="leaveRoom()" class="flex-1 bg-red-600 hover:bg-red-700 font-bold py-3 px-6 rounded-xl transition-all">
+                <button onclick="leaveRoom()" class="flex-1 game-btn bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105">
                     ออกจากห้อง
                 </button>
             </div>
@@ -138,9 +431,9 @@
     <!-- หน้าเกมแข่งรถ -->
     <div id="game-screen" class="screen min-h-screen flex flex-col items-center justify-center p-4">
         <div class="w-full max-w-5xl mx-auto">
-            <h2 class="text-3xl font-bold mb-4 text-center">🏎️ แข่งรถคณิตศาสตร์</h2>
+            <h2 class="text-3xl font-bold mb-4 text-center text-cyan-400">🏎️ แข่งรถคณิตศาสตร์</h2>
             
-            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 shadow-2xl mb-4">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border-2 border-cyan-500/50 shadow-2xl mb-4 game-card">
                 <div class="flex justify-between items-center mb-4">
                     <div class="text-lg">
                         คะแนน: <span id="my-score" class="font-bold text-yellow-400">0</span>
@@ -153,7 +446,7 @@
                 <canvas id="race-canvas" class="w-full rounded-xl border-4 border-white/30" style="background: linear-gradient(to right, #2d5016 0%, #3d6b1e 100%);"></canvas>
             </div>
             
-            <div id="question-box" class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl mb-4">
+            <div id="question-box" class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border-2 border-purple-500/50 shadow-2xl mb-4 game-card">
                 <div id="answer-feedback" class="hidden mb-4 text-center text-2xl font-bold"></div>
                 <div class="question-text text-4xl md:text-5xl font-bold text-center mb-6" id="question-text"></div>
                 <div class="answer-grid grid grid-cols-2 gap-4" id="answer-grid"></div>
@@ -165,7 +458,7 @@
                 <div class="text-8xl md:text-9xl font-bold text-yellow-400 animate-pulse" id="countdown-number"></div>
             </div>
             
-            <button onclick="leaveRoom()" class="w-full bg-red-600 hover:bg-red-700 font-bold py-3 px-6 rounded-xl transition-all">
+            <button onclick="leaveRoom()" class="w-full game-btn bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105">
                 ออกจากเกม
             </button>
         </div>
@@ -182,19 +475,108 @@
         let myCar = '🏎️';
         let myRoomId = null;
         let isHost = false;
+        let isMonitor = false;
         let currentQuestion = null;
         let myPlayerId = null;
+        let cachedRoomList = {}; // Cache room list data
+
+        // Custom Modal Functions
+        function showModal(options) {
+            const modal = document.getElementById('custom-modal');
+            const icon = document.getElementById('modal-icon');
+            const title = document.getElementById('modal-title');
+            const message = document.getElementById('modal-message');
+            const buttons = document.getElementById('modal-buttons');
+            
+            // Set icon based on type
+            const icons = {
+                'success': '🎉',
+                'error': '❌',
+                'warning': '⚠️',
+                'info': 'ℹ️',
+                'question': '❓'
+            };
+            icon.textContent = icons[options.type] || '🎮';
+            
+            // Set title and message
+            title.textContent = options.title || 'แจ้งเตือน';
+            message.textContent = options.text || '';
+            
+            // Clear existing buttons
+            buttons.innerHTML = '';
+            
+            // Add buttons
+            if (options.showCancelButton) {
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'modal-btn modal-btn-secondary';
+                cancelBtn.textContent = options.cancelButtonText || 'ยกเลิก';
+                cancelBtn.onclick = () => {
+                    modal.classList.remove('active');
+                    if (options.onCancel) options.onCancel();
+                };
+                buttons.appendChild(cancelBtn);
+            }
+            
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'modal-btn modal-btn-primary';
+            confirmBtn.textContent = options.confirmButtonText || 'ตกลง';
+            confirmBtn.onclick = () => {
+                modal.classList.remove('active');
+                if (options.onConfirm) options.onConfirm();
+            };
+            buttons.appendChild(confirmBtn);
+            
+            // Show modal
+            modal.classList.add('active');
+        }
+        
+        function showSuccess(title, text, callback) {
+            showModal({
+                type: 'success',
+                title: title,
+                text: text,
+                confirmButtonText: 'ตกลง',
+                onConfirm: callback
+            });
+        }
+        
+        function showError(title, text, callback) {
+            showModal({
+                type: 'error',
+                title: title,
+                text: text,
+                confirmButtonText: 'ตกลง',
+                onConfirm: callback
+            });
+        }
+        
+        function showWarning(title, text, callback) {
+            showModal({
+                type: 'warning',
+                title: title,
+                text: text,
+                confirmButtonText: 'ตกลง',
+                onConfirm: callback
+            });
+        }
+        
+        function showConfirm(title, text, onConfirm, onCancel) {
+            showModal({
+                type: 'question',
+                title: title,
+                text: text,
+                showCancelButton: true,
+                confirmButtonText: 'ตกลง',
+                cancelButtonText: 'ยกเลิก',
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            });
+        }
 
         // Socket error handling
         socket.on('connect_error', (error) => {
             console.error('Socket connection error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'เชื่อมต่อไม่ได้',
-                text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#667eea'
-            });
+            showError('เชื่อมต่อไม่ได้', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
         });
 
         socket.on('disconnect', () => {
@@ -271,6 +653,10 @@
 
         function showRoomList() {
             showScreen('room-list-screen');
+            // Re-render room list when returning to room list screen
+            if (Object.keys(cachedRoomList).length > 0) {
+                renderRoomList(cachedRoomList);
+            }
         }
 
         function showCreateRoom() {
@@ -297,37 +683,57 @@
             
             const roomName = document.getElementById('roomName').value.trim();
             const hostName = document.getElementById('hostName').value.trim();
+            const hostMode = document.getElementById('hostMode').value;
+            const operation = document.getElementById('operation').value;
+            const digitMode = document.getElementById('digitMode').value;
+            const difficulty = document.getElementById('difficulty').value;
             
-            console.log('Attempting to create room:', { roomName, hostName, myCar });
+            let digit1 = digitMode;
+            let digit2 = digitMode;
+            
+            if (digitMode === 'mixed') {
+                digit1 = document.getElementById('mixedDigit1').value;
+                digit2 = document.getElementById('mixedDigit2').value;
+            }
+            
+            console.log('Attempting to create room:', { roomName, hostName, myCar, hostMode, operation, digitMode, digit1, digit2, difficulty });
             console.log('Socket connected:', socket.connected);
             
             if (!roomName || !hostName) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ข้อมูลไม่ครบ',
-                    text: 'กรุณาใส่ชื่อห้องและชื่อของคุณ',
-                    confirmButtonText: 'ตกลง',
-                    confirmButtonColor: '#667eea'
-                });
+                showWarning('ข้อมูลไม่ครบ', 'กรุณาใส่ชื่อห้องและชื่อของคุณ');
                 return;
             }
             
             if (!socket.connected) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ไม่ได้เชื่อมต่อ',
-                    text: 'ไม่ได้เชื่อมต่อกับเซิร์ฟเวอร์ กรุณารีเฟรชหน้า',
-                    confirmButtonText: 'ตกลง',
-                    confirmButtonColor: '#667eea'
-                });
+                showError('ไม่ได้เชื่อมต่อ', 'ไม่ได้เชื่อมต่อกับเซิร์ฟเวอร์ กรุณารีเฟรชหน้า');
                 return;
             }
             
             // บันทึกชื่อผู้เล่นไว้สำหรับ reconnect
             localStorage.setItem('playerName', hostName);
             
-            socket.emit('createRoom', { roomName, playerName: hostName, car: myCar });
+            socket.emit('createRoom', { 
+                roomName, 
+                playerName: hostName, 
+                car: myCar,
+                hostMode,
+                operation,
+                digitMode,
+                digit1,
+                digit2,
+                difficulty
+            });
             console.log('Room creation event emitted');
+        }
+
+        function toggleMixedDigits() {
+            const digitMode = document.getElementById('digitMode').value;
+            const mixedOptions = document.getElementById('mixedDigitsOptions');
+            if (digitMode === 'mixed') {
+                mixedOptions.classList.remove('hidden');
+            } else {
+                mixedOptions.classList.add('hidden');
+            }
         }
 
         // เข้าห้อง
@@ -335,13 +741,7 @@
             const joinName = document.getElementById('joinName').value.trim();
             
             if (!joinName) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ข้อมูลไม่ครบ',
-                    text: 'กรุณาใส่ชื่อของคุณ',
-                    confirmButtonText: 'ตกลง',
-                    confirmButtonColor: '#667eea'
-                });
+                showWarning('ข้อมูลไม่ครบ', 'กรุณาใส่ชื่อของคุณ');
                 return;
             }
             
@@ -371,6 +771,78 @@
             socket.emit('resetRoom', myRoomId);
         }
 
+        // ไล่ผู้เล่นออก
+        function kickPlayer(playerId) {
+            showConfirm(
+                'ไล่ผู้เล่นออก?',
+                'คุณต้องการไล่ผู้เล่นคนนี้ออกจากห้องใช่หรือไม่?',
+                () => {
+                    socket.emit('kickPlayer', { playerId, roomId: myRoomId });
+                }
+            );
+        }
+
+        function toggleLobbyMixedDigits() {
+            const digitMode = document.getElementById('lobby-digitMode').value;
+            const mixedOptions = document.getElementById('lobby-mixedDigitsOptions');
+            if (digitMode === 'mixed') {
+                mixedOptions.classList.remove('hidden');
+            } else {
+                mixedOptions.classList.add('hidden');
+            }
+        }
+
+        function updateRoomSettings() {
+            const hostMode = document.getElementById('lobby-hostMode').value;
+            const operation = document.getElementById('lobby-operation').value;
+            const digitMode = document.getElementById('lobby-digitMode').value;
+            const difficulty = document.getElementById('lobby-difficulty').value;
+            
+            let digit1 = digitMode;
+            let digit2 = digitMode;
+            
+            if (digitMode === 'mixed') {
+                digit1 = document.getElementById('lobby-mixedDigit1').value;
+                digit2 = document.getElementById('lobby-mixedDigit2').value;
+            }
+            
+            socket.emit('updateRoomSettings', {
+                roomId: myRoomId,
+                hostMode,
+                operation,
+                digitMode,
+                digit1,
+                digit2,
+                difficulty
+            });
+        }
+
+        function displayRoomSettings(settings) {
+            const settingsInfo = document.getElementById('settings-info');
+            const hostModeText = settings.hostMode === 'monitor' ? '👁️ ผู้ดูแล' : '🏎️ ผู้แข่งขัน';
+            const operationText = {
+                'add': '➕ บวก',
+                'subtract': '➖ ลบ',
+                'multiply': '✖️ คูณ',
+                'divide': '➗ หาร'
+            }[settings.operation];
+            const digitText = settings.digitMode === 'mixed' 
+                ? `🔀 ผสม (${settings.digit1} และ ${settings.digit2} หลัก)`
+                : `${settings.digitMode} หลัก`;
+            const difficultyText = {
+                'easy': '😊 ง่าย',
+                'medium': '🤔 ปานกลาง',
+                'hard': '😈 ยาก'
+            }[settings.difficulty];
+            
+            settingsInfo.innerHTML = `
+                <div>โหมดเจ้าของ: ${hostModeText}</div>
+                <div>การดำเนินการ: ${operationText}</div>
+                <div>จำนวนเลขหลัก: ${digitText}</div>
+                <div>ระดับความยาก: ${difficultyText}</div>
+            `;
+        }
+
         // ตอบคำถาม
         function submitAnswer(answer) {
             socket.emit('submitAnswer', { answer });
@@ -380,7 +852,18 @@
 
         // Socket events
         socket.on('roomList', (rooms) => {
+            console.log('Received roomList update:', rooms);
+            cachedRoomList = rooms; // Cache the room list data
+            renderRoomList(rooms);
+        });
+
+        function renderRoomList(rooms) {
             const container = document.getElementById('rooms-container');
+            if (!container) {
+                console.log('rooms-container not found, skipping render');
+                return;
+            }
+            
             container.innerHTML = '';
             
             const roomIds = Object.keys(rooms);
@@ -392,41 +875,66 @@
             roomIds.forEach(roomId => {
                 const room = rooms[roomId];
                 const playerCount = Object.keys(room.players).length;
+                const isPlaying = room.status === 'playing';
+                const isFinished = room.status === 'finished';
                 const div = document.createElement('div');
                 div.className = 'bg-white/10 rounded-xl p-4 flex justify-between items-center';
+                
+                let statusBadge;
+                if (isFinished) {
+                    statusBadge = '<span class="bg-gray-500 text-white text-xs px-2 py-1 rounded-full ml-2">จบแล้ว</span>';
+                } else if (isPlaying) {
+                    statusBadge = '<span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full ml-2">กำลังเล่น</span>';
+                } else {
+                    statusBadge = '<span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full ml-2">รอผู้เล่น</span>';
+                }
+                
+                const buttonDisabled = (isPlaying || isFinished) ? 'disabled opacity-50 cursor-not-allowed' : '';
+                
                 div.innerHTML = `
                     <div>
                         <strong class="text-lg">${room.name}</strong><br>
-                        <small class="text-gray-400">ผู้เล่น: ${playerCount} คน</small>
+                        <small class="text-gray-400">ผู้เล่น: ${playerCount} คน${statusBadge}</small>
                     </div>
-                    <button onclick="showJoinRoom('${roomId}')" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 font-bold py-2 px-4 rounded-lg transition-all">
+                    <button onclick="${(isPlaying || isFinished) ? '' : `showJoinRoom('${roomId}')`}" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 font-bold py-2 px-4 rounded-lg transition-all ${buttonDisabled}">
                         เข้าร่วม
                     </button>
                 `;
                 container.appendChild(div);
             });
-        });
+            
+            console.log('Rendered room list with', roomIds.length, 'rooms');
+        }
 
         socket.on('roomCreated', (roomId) => {
             myRoomId = roomId;
             isHost = true;
+            myPlayerId = socket.id;
+            // Check if monitor mode
+            const hostMode = document.getElementById('hostMode').value;
+            isMonitor = hostMode === 'monitor';
             showScreen('lobby-screen');
+            if (isMonitor) {
+                document.getElementById('start-game-btn').style.display = 'block';
+            }
+            // Initialize settings form with current values
+            document.getElementById('lobby-hostMode').value = hostMode;
+            document.getElementById('lobby-operation').value = document.getElementById('operation').value;
+            document.getElementById('lobby-digitMode').value = document.getElementById('digitMode').value;
+            document.getElementById('lobby-difficulty').value = document.getElementById('difficulty').value;
+            updateSettingsUI();
         });
 
         socket.on('joinedRoom', (roomId) => {
             myRoomId = roomId;
             isHost = false;
+            myPlayerId = socket.id;
             showScreen('lobby-screen');
+            updateSettingsUI();
         });
 
         socket.on('joinError', (message) => {
-            Swal.fire({
-                icon: 'error',
-                title: 'เข้าห้องไม่ได้',
-                text: message,
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#667eea'
-            }).then(() => {
+            showError('เข้าห้องไม่ได้', message, () => {
                 showRoomList();
             });
         });
@@ -436,10 +944,24 @@
             const container = document.getElementById('lobby-players');
             container.innerHTML = '';
             
-            Object.values(lobbyPlayers).forEach(player => {
+            Object.keys(lobbyPlayers).forEach(playerId => {
+                const player = lobbyPlayers[playerId];
                 const div = document.createElement('div');
-                div.className = 'bg-white/10 rounded-lg p-3 flex items-center gap-3';
-                div.innerHTML = `<span class="text-3xl">${player.car}</span> <span class="font-semibold">${player.name}</span>`;
+                div.className = 'bg-white/10 rounded-lg p-3 flex items-center justify-between gap-3';
+                
+                // แสดงปุ่มไล่ออกเฉพาะถ้าเป็น host และ player ไม่ใช่ตัวเอง
+                const kickButton = isHost && playerId !== myPlayerId ? 
+                    `<button onclick="kickPlayer('${playerId}')" class="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded-lg transition-all">
+                        ไล่ออก
+                    </button>` : '';
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">${player.car}</span> 
+                        <span class="font-semibold">${player.name}</span>
+                    </div>
+                    ${kickButton}
+                `;
                 container.appendChild(div);
             });
             
@@ -453,6 +975,12 @@
             document.getElementById('winner-display').classList.add('hidden');
             document.getElementById('waiting-message').classList.add('hidden');
             document.getElementById('countdown-display').classList.remove('hidden');
+            
+            // Hide question box for monitors
+            if (isMonitor) {
+                document.getElementById('question-box').classList.add('hidden');
+            }
+            
             drawRace();
         });
 
@@ -460,28 +988,37 @@
             document.getElementById('countdown-number').textContent = number;
             if (number === 0) {
                 document.getElementById('countdown-display').classList.add('hidden');
-                document.getElementById('question-box').classList.remove('hidden');
+                // Only show question box if not monitor
+                if (!isMonitor) {
+                    document.getElementById('question-box').classList.remove('hidden');
+                }
             }
         });
 
         socket.on('newQuestion', (question) => {
             currentQuestion = question;
-            document.getElementById('question-text').textContent = question.question;
-            document.getElementById('waiting-message').classList.add('hidden');
-            document.getElementById('answer-feedback').classList.add('hidden');
+            // Hide countdown display when question arrives
+            document.getElementById('countdown-display').classList.add('hidden');
             
-            const answerGrid = document.getElementById('answer-grid');
-            answerGrid.innerHTML = '';
-            
-            question.answers.forEach(answer => {
-                const btn = document.createElement('button');
-                btn.className = 'bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white font-bold text-2xl py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg';
-                btn.textContent = answer;
-                btn.onclick = () => submitAnswer(answer);
-                answerGrid.appendChild(btn);
-            });
-            
-            document.getElementById('question-box').classList.remove('hidden');
+            // Only show question if not monitor
+            if (!isMonitor) {
+                document.getElementById('question-text').textContent = question.question;
+                document.getElementById('waiting-message').classList.add('hidden');
+                document.getElementById('answer-feedback').classList.add('hidden');
+                
+                const answerGrid = document.getElementById('answer-grid');
+                answerGrid.innerHTML = '';
+                
+                question.answers.forEach(answer => {
+                    const btn = document.createElement('button');
+                    btn.className = 'bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white font-bold text-2xl py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg';
+                    btn.textContent = answer;
+                    btn.onclick = () => submitAnswer(answer);
+                    answerGrid.appendChild(btn);
+                });
+                
+                document.getElementById('question-box').classList.remove('hidden');
+            }
         });
 
         socket.on('answerSubmitted', (data) => {
@@ -583,13 +1120,7 @@
 
         socket.on('reconnectFailed', (message) => {
             console.log('Reconnection failed:', message);
-            Swal.fire({
-                icon: 'error',
-                title: 'เชื่อมต่อใหม่ไม่สำเร็จ',
-                text: message,
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#667eea'
-            }).then(() => {
+            showError('เชื่อมต่อใหม่ไม่สำเร็จ', message, () => {
                 myRoomId = null;
                 isHost = false;
                 showScreen('room-list-screen');
@@ -602,6 +1133,65 @@
             document.getElementById('countdown-display').classList.add('hidden');
             document.getElementById('question-box').classList.add('hidden');
         });
+
+        socket.on('kicked', () => {
+            showWarning('ถูกไล่ออก', 'คุณถูกไล่ออกจากห้องโดยเจ้าของห้อง', () => {
+                myRoomId = null;
+                isHost = false;
+                showRoomList();
+            });
+        });
+
+        socket.on('hostChanged', (data) => {
+            isHost = (data.newHostId === myPlayerId);
+            showModal({
+                type: 'info',
+                title: 'เจ้าของห้องเปลี่ยน',
+                text: `${data.newHostName} กลายเป็นเจ้าของห้องใหม่`,
+                confirmButtonText: 'ตกลง',
+                onConfirm: () => {
+                    // Update start game button visibility and settings UI
+                    document.getElementById('start-game-btn').style.display = isHost ? 'block' : 'none';
+                    updateSettingsUI();
+                }
+            });
+        });
+
+        socket.on('roomSettingsUpdated', (settings) => {
+            // Update settings display for non-hosts
+            if (!isHost) {
+                displayRoomSettings(settings);
+            } else {
+                // Update form values for host
+                document.getElementById('lobby-hostMode').value = settings.hostMode;
+                document.getElementById('lobby-operation').value = settings.operation;
+                document.getElementById('lobby-digitMode').value = settings.digitMode;
+                document.getElementById('lobby-difficulty').value = settings.difficulty;
+                
+                if (settings.digitMode === 'mixed') {
+                    document.getElementById('lobby-mixedDigit1').value = settings.digit1;
+                    document.getElementById('lobby-mixedDigit2').value = settings.digit2;
+                    document.getElementById('lobby-mixedDigitsOptions').classList.remove('hidden');
+                } else {
+                    document.getElementById('lobby-mixedDigitsOptions').classList.add('hidden');
+                }
+            }
+            
+            showSuccess('ตั้งค่าอัพเดท', 'การตั้งค่าห้องถูกอัพเดทแล้ว');
+        });
+
+        function updateSettingsUI() {
+            const settingsDiv = document.getElementById('room-settings');
+            const displayDiv = document.getElementById('room-settings-display');
+            
+            if (isHost) {
+                settingsDiv.classList.remove('hidden');
+                displayDiv.classList.add('hidden');
+            } else {
+                settingsDiv.classList.add('hidden');
+                displayDiv.classList.remove('hidden');
+            }
+        }
 
         // วาดสนามแข่ง
         function drawRace() {
