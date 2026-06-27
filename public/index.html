@@ -339,7 +339,7 @@
 
     <!-- หน้า Lobby -->
     <div id="lobby-screen" class="screen min-h-screen flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-6xl mx-auto flex gap-4">
+        <div class="w-full max-w-6xl mx-auto flex flex-col md:flex-row gap-4">
             <!-- Left Column: Lobby Info -->
             <div class="flex-1 bg-white/10 backdrop-blur-lg rounded-2xl p-6 border-2 border-yellow-500/50 shadow-2xl game-card">
                 <h2 class="text-3xl font-bold mb-2 text-center text-yellow-400">🏁 Lobby - รอผู้เล่น</h2>
@@ -430,7 +430,7 @@
             </div>
             
             <!-- Right Column: Chat -->
-            <div class="w-96 bg-white/10 backdrop-blur-lg rounded-2xl p-6 border-2 border-blue-500/50 shadow-2xl game-card flex flex-col">
+            <div class="w-full md:w-96 bg-white/10 backdrop-blur-lg rounded-2xl p-6 border-2 border-blue-500/50 shadow-2xl game-card flex flex-col">
                 <h4 class="text-lg font-semibold mb-3 text-blue-400">💬 แชท:</h4>
                 <div id="chat-messages" class="bg-white/5 rounded-lg p-3 flex-1 overflow-y-auto mb-3 space-y-2 text-sm min-h-64"></div>
                 <div class="flex gap-2">

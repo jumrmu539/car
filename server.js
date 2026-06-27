@@ -40,105 +40,137 @@ function cleanRoomForClient(room) {
 
 // สร้างโจทย์คณิตศาสตร์
 function generateMathQuestion(room) {
-    const operation = room.operation || 'add';
-    const digitMode = room.digitMode || '2';
-    const digit1 = room.digit1 || '2';
-    const digit2 = room.digit2 || '2';
-    const difficulty = room.difficulty || 'easy';
-    
-    // สร้างตัวเลขตามจำนวนหลัก
-    function getNumber(digit) {
-        const min = digit === '1' ? 1 : digit === '2' ? 10 : 100;
-        const max = digit === '1' ? 9 : digit === '2' ? 99 : 999;
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-    
-    let num1, num2, correctAnswer, operator;
-    
-    if (digitMode === 'mixed') {
-        num1 = getNumber(digit1);
-        num2 = getNumber(digit2);
-    } else {
-        num1 = getNumber(digitMode);
-        num2 = getNumber(digitMode);
-    }
-    
-    // คำนวณตามการดำเนินการ
-    switch (operation) {
-        case 'add':
-            operator = '+';
-            correctAnswer = num1 + num2;
-            break;
-        case 'subtract':
-            operator = '-';
-            // ให้ผลลัพธ์เป็นบวกเสมอ
-            if (num1 < num2) {
-                [num1, num2] = [num2, num1];
-            }
-            correctAnswer = num1 - num2;
-            break;
-        case 'multiply':
-            operator = '×';
-            // จำกัดตัวเลขให้ไม่ใหญ่เกินไปสำหรับการคูณ
-            if (digitMode === '3' || digit1 === '3' || digit2 === '3') {
-                num1 = Math.min(num1, 50);
-                num2 = Math.min(num2, 50);
-            }
-            correctAnswer = num1 * num2;
-            break;
-        case 'divide':
-            operator = '÷';
-            // สร้างให้หารลงตัว
-            const divisor = num2;
-            const quotient = num1;
-            num1 = quotient * divisor;
-            num2 = divisor;
-            correctAnswer = quotient;
-            break;
-    }
-    
-    // สร้างตัวเลือก 4 ตัว
-    let answers = [correctAnswer];
-    
-    // สร้างคำตอบผิดตามระดับความยาก
-    while (answers.length < 4) {
-        let wrongAnswer;
+    try {
+        const operation = room.operation || 'add';
+        const digitMode = room.digitMode || '2';
+        const digit1 = room.digit1 || '2';
+        const digit2 = room.digit2 || '2';
+        const difficulty = room.difficulty || 'easy';
         
-        if (difficulty === 'easy') {
-            // ง่าย - คำตอบผิดสุ่ม
-            const range = operation === 'multiply' ? correctAnswer * 0.5 : correctAnswer * 0.3;
-            wrongAnswer = Math.floor(correctAnswer + (Math.random() * range * 2) - range);
-        } else if (difficulty === 'medium') {
-            // ปานกลาง - มีตัวหลอกบางข้อ (ลงท้ายด้วยเลขเดียวกัน)
-            if (Math.random() < 0.4 && answers.length < 3) {
-                // ตัวหลอก - ลงท้ายด้วยเลขเดียวกัน
+        // สร้างตัวเลขตามจำนวนหลัก
+        function getNumber(digit) {
+            const min = digit === '1' ? 1 : digit === '2' ? 10 : 100;
+            const max = digit === '1' ? 9 : digit === '2' ? 99 : 999;
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        let num1, num2, correctAnswer, operator;
+        
+        if (digitMode === 'mixed') {
+            num1 = getNumber(digit1);
+            num2 = getNumber(digit2);
+        } else {
+            num1 = getNumber(digitMode);
+            num2 = getNumber(digitMode);
+        }
+        
+        // คำนวณตามการดำเนินการ
+        switch (operation) {
+            case 'add':
+                operator = '+';
+                correctAnswer = num1 + num2;
+                break;
+            case 'subtract':
+                operator = '-';
+                // ให้ผลลัพธ์เป็นบวกเสมอ
+                if (num1 < num2) {
+                    [num1, num2] = [num2, num1];
+                }
+                correctAnswer = num1 - num2;
+                break;
+            case 'multiply':
+                operator = '×';
+                // จำกัดตัวเลขให้ไม่ใหญ่เกินไปสำหรับการคูณ
+                if (digitMode === '3' || digit1 === '3' || digit2 === '3') {
+                    num1 = Math.min(num1, 50);
+                    num2 = Math.min(num2, 50);
+                }
+                correctAnswer = num1 * num2;
+                break;
+            case 'divide':
+                operator = '÷';
+                // สร้างให้หารลงตัว - ป้องกัน division by zero
+                if (num2 === 0) {
+                    num2 = 1;
+                }
+                const divisor = num2;
+                const quotient = num1;
+                num1 = quotient * divisor;
+                num2 = divisor;
+                correctAnswer = quotient;
+                break;
+            default:
+                // Fallback to add if operation is invalid
+                operator = '+';
+                correctAnswer = num1 + num2;
+        }
+        
+        // สร้างตัวเลือก 4 ตัว
+        let answers = [correctAnswer];
+        
+        // สร้างคำตอบผิดตามระดับความยาก - เพิ่ม protection จาก infinite loop
+        let attempts = 0;
+        const maxAttempts = 100;
+        
+        while (answers.length < 4 && attempts < maxAttempts) {
+            attempts++;
+            let wrongAnswer;
+            
+            if (difficulty === 'easy') {
+                // ง่าย - คำตอบผิดสุ่ม
+                const range = operation === 'multiply' ? Math.max(correctAnswer * 0.5, 10) : Math.max(correctAnswer * 0.3, 5);
+                wrongAnswer = Math.floor(correctAnswer + (Math.random() * range * 2) - range);
+            } else if (difficulty === 'medium') {
+                // ปานกลาง - มีตัวหลอกบางข้อ (ลงท้ายด้วยเลขเดียวกัน)
+                if (Math.random() < 0.4 && answers.length < 3) {
+                    // ตัวหลอก - ลงท้ายด้วยเลขเดียวกัน
+                    const lastDigit = correctAnswer % 10;
+                    wrongAnswer = correctAnswer + (Math.random() < 0.5 ? 10 : -10);
+                    wrongAnswer = Math.floor(wrongAnswer / 10) * 10 + lastDigit;
+                } else {
+                    const range = operation === 'multiply' ? Math.max(correctAnswer * 0.5, 10) : Math.max(correctAnswer * 0.3, 5);
+                    wrongAnswer = Math.floor(correctAnswer + (Math.random() * range * 2) - range);
+                }
+            } else {
+                // ยาก - ตัวหลอกทุกข้อ
                 const lastDigit = correctAnswer % 10;
                 wrongAnswer = correctAnswer + (Math.random() < 0.5 ? 10 : -10);
                 wrongAnswer = Math.floor(wrongAnswer / 10) * 10 + lastDigit;
-            } else {
-                const range = operation === 'multiply' ? correctAnswer * 0.5 : correctAnswer * 0.3;
-                wrongAnswer = Math.floor(correctAnswer + (Math.random() * range * 2) - range);
             }
-        } else {
-            // ยาก - ตัวหลอกทุกข้อ
-            const lastDigit = correctAnswer % 10;
-            wrongAnswer = correctAnswer + (Math.random() < 0.5 ? 10 : -10);
-            wrongAnswer = Math.floor(wrongAnswer / 10) * 10 + lastDigit;
+            
+            if (wrongAnswer !== correctAnswer && wrongAnswer >= 0 && !answers.includes(wrongAnswer) && !isNaN(wrongAnswer)) {
+                answers.push(wrongAnswer);
+            }
         }
         
-        if (wrongAnswer !== correctAnswer && wrongAnswer >= 0 && !answers.includes(wrongAnswer)) {
-            answers.push(wrongAnswer);
+        // ถ้าไม่สามารถสร้าง 4 ตัวเลือกได้ ให้สร้างแบบง่าย
+        while (answers.length < 4) {
+            const offset = answers.length * 1;
+            wrongAnswer = correctAnswer + offset;
+            if (wrongAnswer !== correctAnswer && !answers.includes(wrongAnswer)) {
+                answers.push(wrongAnswer);
+            } else {
+                answers.push(correctAnswer + answers.length + 1);
+            }
         }
+        
+        // สลับตำแหน่งตัวเลือก
+        answers = answers.sort(() => Math.random() - 0.5);
+        
+        return {
+            question: `${num1} ${operator} ${num2} = ?`,
+            answers: answers,
+            correctAnswer: correctAnswer
+        };
+    } catch (error) {
+        console.error('Error generating math question:', error);
+        // Return a simple fallback question
+        return {
+            question: '1 + 1 = ?',
+            answers: [2, 3, 4, 5],
+            correctAnswer: 2
+        };
     }
-    
-    // สลับตำแหน่งตัวเลือก
-    answers = answers.sort(() => Math.random() - 0.5);
-    
-    return {
-        question: `${num1} ${operator} ${num2} = ?`,
-        answers: answers,
-        correctAnswer: correctAnswer
-    };
 }
 
 io.on('connection', (socket) => {
